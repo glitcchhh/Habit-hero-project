@@ -4,6 +4,19 @@ import axios from 'axios';
 import './Home.css';
 import { Home, Activity, Settings, Plus, Calendar, CheckSquare, Square, EllipsisVertical } from "../components/Icons";
 
+// --- Streak Card Component ---
+const StreakCard = ({ icon, label, value, color }) => (
+  <div className="streak-card" style={{ borderColor: color }}>
+    <div className="streak-icon" style={{ color }}>
+      {icon}
+    </div>
+    <div className="streak-info">
+      <p className="streak-label">{label}</p>
+      <h3 className="streak-value" style={{ color }}>{value}</h3>
+    </div>
+  </div>
+);
+
 // --- Progress Circle ---
 const ProgressCircle = ({ percent }) => {
   const radius = 50;
@@ -115,6 +128,23 @@ const HomePage = () => {
     return { completedCount: completed, totalCount: total, progressPercent: percent };
   }, [habits]);
 
+  // --- Fetch streak statistics ---
+  const [streakStats, setStreakStats] = useState({
+    currentStreak: 0,
+    longestStreak: 0,
+    totalCompleted: 0
+  });
+
+  useEffect(() => {
+    axios.get(`http://localhost:8000/habits/stats/${USER_ID}`)
+      .then(res => setStreakStats({
+        currentStreak: res.data.current_streak,
+        longestStreak: res.data.longest_streak,
+        totalCompleted: res.data.total_completed
+      }))
+      .catch(err => console.error('Error fetching streak stats:', err));
+  }, [habits]);
+
   return (
     <div className="app-container">
       <div className="main-card">
@@ -123,6 +153,29 @@ const HomePage = () => {
           <h1>Hello, <span>User!</span></h1>
         </header>
 
+        {/* Streak Tracker */}
+        <div className="streak-container">
+          <StreakCard 
+            icon="🔥"
+            label="Current Streak"
+            value={`${streakStats.currentStreak} days`}
+            color="#ff6b35"
+          />
+          <StreakCard 
+            icon="🏆"
+            label="Longest Streak"
+            value={`${streakStats.longestStreak} days`}
+            color="#ffd700"
+          />
+          <StreakCard 
+            icon="✅"
+            label="Total Completed"
+            value={streakStats.totalCompleted}
+            color="#10b981"
+          />
+        </div>
+
+        {/* Progress Card */}
         <div className="progress-card">
           <Calendar className="calendar-bg" />
           <div className="progress-circle-wrapper">

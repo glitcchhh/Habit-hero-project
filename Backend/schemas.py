@@ -1,5 +1,7 @@
+# schemas.py
 from pydantic import BaseModel, EmailStr
 from typing import Optional
+from datetime import date
 
 # --- User Schemas ---
 class UserBase(BaseModel):
@@ -27,13 +29,24 @@ class HabitBase(BaseModel):
     category: Optional[str] = None
 
 class HabitCreate(HabitBase):
-    user_id: int  # <-- Add this
+    user_id: int
 
 class Habit(HabitBase):
     id: int
     user_id: int
+    current_streak: int = 0
+    longest_streak: int = 0
+    last_completed_date: Optional[date] = None
+    
     class Config:
         orm_mode = True
+
+
+# --- Streak Stats Schema ---
+class StreakStats(BaseModel):
+    current_streak: int
+    longest_streak: int
+    total_completed: int
 
 
 # --- Goal Schemas ---

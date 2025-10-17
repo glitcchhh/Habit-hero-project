@@ -151,6 +151,94 @@ html, body, #root {
     }
 }
 
+/* --- Streak Container --- */
+.streak-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+    .streak-container {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+    }
+}
+
+/* --- Streak Card --- */
+.streak-card {
+    background: var(--card-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 1.25rem;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.streak-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+@media (max-width: 768px) {
+    .streak-card {
+        padding: 1rem 0.75rem;
+    }
+}
+
+/* --- Streak Icon --- */
+.streak-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    line-height: 1;
+}
+
+@media (max-width: 768px) {
+    .streak-icon {
+        font-size: 2rem;
+        margin-bottom: 0.25rem;
+    }
+}
+
+/* --- Streak Info --- */
+.streak-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.streak-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .streak-label {
+        font-size: 0.7rem;
+    }
+}
+
+.streak-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1;
+}
+
+@media (max-width: 768px) {
+    .streak-value {
+        font-size: 1.25rem;
+    }
+}
+
 /* --- Sections --- */
 .section {
     display: flex;
