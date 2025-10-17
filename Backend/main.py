@@ -11,9 +11,9 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Habit Tracker API")
 
-# --- CORS middleware for frontend access ---
+# --- CORS middleware ---
 origins = [
-    "http://localhost:5173",  # your frontend
+    "http://localhost:5173",
     "http://127.0.0.1:5173",
 ]
 
@@ -26,7 +26,6 @@ app.add_middleware(
 )
 
 # --- Password hashing ---
-# Use pbkdf2_sha256 to avoid OS/backend issues with bcrypt
 pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 def hash_password(password: str) -> str:
@@ -47,14 +46,11 @@ def get_db():
 
 @app.post("/signup/", response_model=schemas.User)
 def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    # Check if email exists
     existing_user = db.query(models.User).filter(models.User.email == user.email).first()
     if existing_user:
         raise HTTPException(status_code=400, detail="Email already registered")
     
-    # Hash the password
     hashed_password = hash_password(user.password)
-
     db_user = models.User(
         name=user.name,
         email=user.email,
@@ -69,35 +65,51 @@ def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
 @app.post("/login/")
 def login(user: schemas.UserLogin, db: Session = Depends(get_db)):
-    # Check if email exists
     db_user = db.query(models.User).filter(models.User.email == user.email).first()
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    # Verify password
     if not verify_password(user.password, db_user.password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    return {"success": True, "message": "Login successful", "user_id": db_user.id, "name": db_user.name}
+    return {
+        "success": True,
+        "message": "Login successful",
+        "user_id": db_user.id,
+        "name": db_user.name
+    }
 
 
 @app.get("/users/", response_model=List[schemas.User])
 def get_users(db: Session = Depends(get_db)):
     return db.query(models.User).all()
 
+
 # ------------------- HABITS ------------------- #
 
 @app.post("/habits/", response_model=schemas.Habit)
 def create_habit(habit: schemas.HabitCreate, db: Session = Depends(get_db)):
-    db_habit = models.Habit(name=habit.name, completed=habit.completed)
+    # Check if user exists
+    user = db.query(models.User).filter(models.User.id == habit.user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    db_habit = models.Habit(
+        name=habit.name,
+        completed=habit.completed,
+        category=habit.category,
+        user_id=habit.user_id
+    )
     db.add(db_habit)
     db.commit()
     db.refresh(db_habit)
     return db_habit
 
-@app.get("/habits/", response_model=List[schemas.Habit])
-def get_habits(db: Session = Depends(get_db)):
-    return db.query(models.Habit).all()
+
+@app.get("/habits/{user_id}", response_model=List[schemas.Habit])
+def get_user_habits(user_id: int, db: Session = Depends(get_db)):
+    return db.query(models.Habit).filter(models.Habit.user_id == user_id).all()
+
 
 @app.put("/habits/{habit_id}", response_model=schemas.Habit)
 def toggle_habit(habit_id: int, db: Session = Depends(get_db)):
@@ -109,6 +121,7 @@ def toggle_habit(habit_id: int, db: Session = Depends(get_db)):
     db.refresh(habit)
     return habit
 
+
 # ------------------- GOALS ------------------- #
 
 @app.post("/goals/", response_model=schemas.Goal)
@@ -118,6 +131,7 @@ def create_goal(goal: schemas.GoalCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_goal)
     return db_goal
+
 
 @app.get("/goals/", response_model=List[schemas.Goal])
 def get_goals(db: Session = Depends(get_db)):

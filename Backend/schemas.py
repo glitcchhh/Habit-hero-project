@@ -1,10 +1,11 @@
 from pydantic import BaseModel, EmailStr
+from typing import Optional
 
-# User schemas
+# --- User Schemas ---
 class UserBase(BaseModel):
     name: str
     email: EmailStr
-    phone: str | None = None
+    phone: Optional[str] = None
 
 class UserCreate(UserBase):
     password: str
@@ -18,23 +19,27 @@ class User(UserBase):
     class Config:
         orm_mode = True
 
-# Habit schemas
+
+# --- Habit Schemas ---
 class HabitBase(BaseModel):
     name: str
     completed: bool = False
+    category: Optional[str] = None
 
 class HabitCreate(HabitBase):
-    pass
+    user_id: int  # <-- Add this
 
 class Habit(HabitBase):
     id: int
+    user_id: int
     class Config:
         orm_mode = True
 
-# Goal schemas
+
+# --- Goal Schemas ---
 class GoalBase(BaseModel):
     title: str
-    description: str | None = None
+    description: Optional[str] = None
 
 class GoalCreate(GoalBase):
     pass
