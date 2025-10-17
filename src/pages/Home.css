@@ -17,8 +17,9 @@ html, body, #root {
 /* --- Primary Colors --- */
 :root {
     --primary-orange: #ff5a00;
-    --light-green: #e8f5e9;
-    --success-green: #4caf50;
+    --light-green: #d4cdfb;
+    --success-green: #060506;
+    --primary-purple: #6649b7;
 }
 
 /* --- Main App Container --- */
@@ -55,10 +56,11 @@ header h1 {
     font-size: 2rem;
     font-weight: 700;
     margin-top: 0.25rem;
+    color: #c7c7c7;
 }
 
 header h1 span {
-    color: var(--primary-orange);
+    color: #010101;
 }
 
 /* --- Progress Card --- */
@@ -72,7 +74,7 @@ header h1 span {
     justify-content: space-between;
     min-height: 13rem;
     overflow: hidden;
-    background: linear-gradient(to right, #ff8c00, var(--primary-orange));
+    background: linear-gradient(to right, #8f61a7, var(--primary-purple));
     box-shadow: 0 10px 20px rgba(0,0,0,0.1);
 }
 
@@ -98,6 +100,35 @@ header h1 span {
     pointer-events: none;
 }
 
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.section-header h2 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.see-all-btn {
+  background: none;
+  border: none;
+  color: #ff6600;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.see-all-btn:hover {
+  color: #e65c00;
+  text-decoration: underline;
+}
+
+
 /* --- Sections --- */
 .section {
     display: flex;
@@ -120,7 +151,7 @@ header h1 span {
 .section-header a {
     font-size: 0.875rem;
     font-weight: 500;
-    color: var(--primary-orange);
+    color: var(--primary-purple);
     text-decoration: none;
 }
 
@@ -204,6 +235,8 @@ header h1 span {
     box-shadow: 0 4px 6px rgba(0,0,0,0.05);
 }
 
+
+
 /* --- Bottom Navigation --- */
 .bottom-nav {
     position: fixed;
@@ -234,7 +267,7 @@ header h1 span {
 
 .bottom-nav .nav-link:hover,
 .bottom-nav .nav-link.active {
-    color: var(--primary-orange);
+    color: var(--primary-purple);
 }
 
 /* --- Floating Action Button --- */
@@ -259,4 +292,107 @@ header h1 span {
 .fab:hover {
     transform: scale(1.1);
     background-color: #388e3c;
+}
+
+/* Popup Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+  z-index: 100;
+}
+
+.modal {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 1.5rem;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  animation: scaleIn 0.25s ease;
+}
+
+.modal h3 {
+  font-size: 1.4rem;
+  color: #e06666;
+  margin-bottom: 1rem;
+}
+
+.modal input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 0.75rem;
+  outline: none;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  transition: border-color 0.2s;
+}
+
+.modal input:focus {
+  border-color: #ac7128;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.habit-dropdown {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.habit-dropdown:focus {
+  border-color: #ff6600;
+}
+
+.habit-type {
+  color: #888;
+  font-size: 0.85rem;
+}
+
+.add-btn {
+  flex: 1;
+  background: linear-gradient(90deg, #ff8c00, #ff4500);
+  color: white;
+  border: none;
+  border-radius: 1rem;
+  padding: 0.6rem;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.cancel-btn {
+  flex: 1;
+  background: #f0f0f0;
+  border: none;
+  border-radius: 1rem;
+  padding: 0.6rem;
+  cursor: pointer;
+  font-weight: bold;
+  color: #555;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0 }
+  to { opacity: 1 }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.9); opacity: 0 }
+  to { transform: scale(1); opacity: 1 }
 }
