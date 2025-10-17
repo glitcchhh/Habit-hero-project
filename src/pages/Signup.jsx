@@ -5,6 +5,7 @@ import "./Signup.css";
 function CreateAccount() {
   const [formData, setFormData] = useState({
     name: "",
+    email: "",
     phone: "",
     password: "",
     confirmPassword: "",
@@ -12,21 +13,57 @@ function CreateAccount() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Password confirmation
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match");
       return;
     }
+
     setError("");
-    alert("Account created successfully!");
-    navigate("/home");
+    setLoading(true);
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/signup/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          password: formData.password,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        setError(data.detail || "Signup failed");
+        setLoading(false);
+        return;
+      }
+
+      // Signup successful
+      const data = await response.json();
+      console.log("User created:", data);
+      setLoading(false);
+      navigate("/home"); // Redirect to home page
+
+    } catch (err) {
+      console.error("Error:", err);
+      setError("Server error. Please try again later.");
+      setLoading(false);
+    }
   };
 
   return (
@@ -64,6 +101,17 @@ function CreateAccount() {
             </div>
 
             <div className="input-group">
+              <label>Phone</label>
+              <input
+                type="tel"
+                name="phone"
+                placeholder="Enter Phone Number"
+                value={formData.phone}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="input-group">
               <label>Password</label>
               <input
                 type={showPassword ? "text" : "password"}
@@ -97,13 +145,12 @@ function CreateAccount() {
               <label>Show password</label>
             </div>
 
-            <button type="submit" className="submit-btn">
-              Create an account
+            <button type="submit" className="submit-btn" disabled={loading}>
+              {loading ? "Creating Account..." : "Create an account"}
             </button>
           </form>
         </div>
 
-        {/* Right-side geometric illustration */}
         <div className="art-box">
           <svg width="120" height="120" viewBox="0 0 100 100">
             <polygon

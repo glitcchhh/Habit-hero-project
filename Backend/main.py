@@ -1,16 +1,41 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
+from passlib.context import CryptContext
 from typing import List
-
-from database import SessionLocal, engine, Base
 import models, schemas
+from database import SessionLocal, engine, Base
 
-# Create SQLite tables
+# --- Create all database tables ---
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Habit Tracker API")
 
-# Dependency for DB session
+# --- CORS middleware for frontend access ---
+origins = [
+    "http://localhost:5173",  # your frontend
+    "http://127.0.0.1:5173",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# --- Password hashing ---
+# Use pbkdf2_sha256 to avoid OS/backend issues with bcrypt
+pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
+
+def hash_password(password: str) -> str:
+    return pwd_context.hash(password)
+
+def verify_password(password: str, hashed: str) -> bool:
+    return pwd_context.verify(password, hashed)
+
+# --- Database session dependency ---
 def get_db():
     db = SessionLocal()
     try:
@@ -18,7 +43,36 @@ def get_db():
     finally:
         db.close()
 
-# --- HABITS --- #
+# ------------------- USERS ------------------- #
+
+@app.post("/signup/", response_model=schemas.User)
+def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    # Check if email exists
+    existing_user = db.query(models.User).filter(models.User.email == user.email).first()
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    # Hash the password
+    hashed_password = hash_password(user.password)
+
+    db_user = models.User(
+        name=user.name,
+        email=user.email,
+        phone=user.phone,
+        password=hashed_password
+    )
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+
+@app.get("/users/", response_model=List[schemas.User])
+def get_users(db: Session = Depends(get_db)):
+    return db.query(models.User).all()
+
+# ------------------- HABITS ------------------- #
+
 @app.post("/habits/", response_model=schemas.Habit)
 def create_habit(habit: schemas.HabitCreate, db: Session = Depends(get_db)):
     db_habit = models.Habit(name=habit.name, completed=habit.completed)
@@ -32,29 +86,20 @@ def get_habits(db: Session = Depends(get_db)):
     return db.query(models.Habit).all()
 
 @app.put("/habits/{habit_id}", response_model=schemas.Habit)
-def update_habit(habit_id: int, habit: schemas.HabitCreate, db: Session = Depends(get_db)):
-    db_habit = db.query(models.Habit).filter(models.Habit.id == habit_id).first()
-    if not db_habit:
+def toggle_habit(habit_id: int, db: Session = Depends(get_db)):
+    habit = db.query(models.Habit).filter(models.Habit.id == habit_id).first()
+    if not habit:
         raise HTTPException(status_code=404, detail="Habit not found")
-    db_habit.name = habit.name
-    db_habit.completed = habit.completed
+    habit.completed = not habit.completed
     db.commit()
-    db.refresh(db_habit)
-    return db_habit
+    db.refresh(habit)
+    return habit
 
-@app.delete("/habits/{habit_id}")
-def delete_habit(habit_id: int, db: Session = Depends(get_db)):
-    db_habit = db.query(models.Habit).filter(models.Habit.id == habit_id).first()
-    if not db_habit:
-        raise HTTPException(status_code=404, detail="Habit not found")
-    db.delete(db_habit)
-    db.commit()
-    return {"message": "Habit deleted"}
+# ------------------- GOALS ------------------- #
 
-# --- GOALS --- #
 @app.post("/goals/", response_model=schemas.Goal)
 def create_goal(goal: schemas.GoalCreate, db: Session = Depends(get_db)):
-    db_goal = models.Goal(name=goal.name)
+    db_goal = models.Goal(title=goal.title, description=goal.description)
     db.add(db_goal)
     db.commit()
     db.refresh(db_goal)
@@ -63,12 +108,3 @@ def create_goal(goal: schemas.GoalCreate, db: Session = Depends(get_db)):
 @app.get("/goals/", response_model=List[schemas.Goal])
 def get_goals(db: Session = Depends(get_db)):
     return db.query(models.Goal).all()
-
-# --- Optional: Progress endpoint --- #
-@app.get("/progress/")
-def get_progress(db: Session = Depends(get_db)):
-    habits = db.query(models.Habit).all()
-    total = len(habits)
-    completed = len([h for h in habits if h.completed])
-    percent = round((completed / total) * 100) if total > 0 else 0
-    return {"completed": completed, "total": total, "percent": percent}
