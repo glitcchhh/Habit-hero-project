@@ -192,7 +192,8 @@ def create_habit(habit: schemas.HabitCreate, db: Session = Depends(get_db)):
         category=habit.category,
         user_id=habit.user_id,
         current_streak=0,
-        longest_streak=0
+        longest_streak=0,
+        scheduled_days=habit.scheduled_days  # Save scheduled days
     )
     db.add(db_habit)
     db.commit()

@@ -80,9 +80,12 @@ const HomePage = () => {
   const [showModal, setShowModal] = useState(false);
   const [newHabit, setNewHabit] = useState("");
   const [habitType, setHabitType] = useState("Work");
+  const [selectedDays, setSelectedDays] = useState([]);
   const navigate = useNavigate();
 
   const USER_ID = 1; // Hardcoded for now, replace with login user id
+
+  const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
   // --- Fetch habits from backend ---
   useEffect(() => {
@@ -102,6 +105,13 @@ const HomePage = () => {
       .catch(err => console.error('Error toggling habit:', err));
   };
 
+  // --- Toggle day selection ---
+  const toggleDay = (day) => {
+    setSelectedDays(prev =>
+      prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]
+    );
+  };
+
   // --- Add new habit ---
   const addHabit = () => {
     if (!newHabit.trim()) return;
@@ -110,12 +120,14 @@ const HomePage = () => {
       name: newHabit.trim(),
       completed: false,
       category: habitType,
-      user_id: USER_ID
+      user_id: USER_ID,
+      scheduledDays: selectedDays // include scheduled days in request
     })
       .then(res => {
         setHabits(prev => [...prev, res.data]);
         setNewHabit("");
         setHabitType("Work");
+        setSelectedDays([]);
         setShowModal(false);
       })
       .catch(err => console.error('Error adding habit:', err));
@@ -149,25 +161,25 @@ const HomePage = () => {
     <div className="app-container">
       <div className="main-card">
         <header className="header">
-          <p>Fri, 17 Oct 2025</p>
+        <p>{new Date().toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}</p>
           <h1>Hello, <span>User!</span></h1>
         </header>
 
         {/* Streak Tracker */}
         <div className="streak-container">
-          <StreakCard 
+          <StreakCard
             icon="🔥"
             label="Current Streak"
             value={`${streakStats.currentStreak} days`}
             color="#ff6b35"
           />
-          <StreakCard 
+          <StreakCard
             icon="🏆"
             label="Longest Streak"
             value={`${streakStats.longestStreak} days`}
             color="#ffd700"
           />
-          <StreakCard 
+          <StreakCard
             icon="✅"
             label="Total Completed"
             value={streakStats.totalCompleted}
@@ -206,15 +218,15 @@ const HomePage = () => {
 
         {/* Bottom Navigation */}
         <nav className="bottom-nav">
-          <button 
+          <button
             className="nav-link active"
             onClick={() => navigate('/home')}
             style={{ background: 'none', border: 'none', cursor: 'pointer' }}
           >
-            <Home /> 
+            <Home />
             <span>Home</span>
           </button>
-          <button 
+          <button
             className="nav-link"
             onClick={() => navigate('/stats')}
             style={{ background: 'none', border: 'none', cursor: 'pointer' }}
@@ -222,7 +234,7 @@ const HomePage = () => {
             <Activity />
             <span>Stats</span>
           </button>
-          <button 
+          <button
             className="nav-link"
             onClick={() => navigate('/settings')}
             style={{ background: 'none', border: 'none', cursor: 'pointer' }}
@@ -260,7 +272,32 @@ const HomePage = () => {
                 <option value="Self-care">Self-care</option>
                 <option value="Mental Health">Mental Health</option>
               </select>
-              <div className="modal-buttons">
+
+              {/* Days of Week Selector */}
+              <div className="days-selector" style={{ marginTop: '1rem' }}>
+                {daysOfWeek.map(day => (
+                  <button
+                    key={day}
+                    type="button"
+                    className={`day-button ${selectedDays.includes(day) ? 'selected' : ''}`}
+                    onClick={() => toggleDay(day)}
+                    style={{
+                      margin: '0 3px',
+                      padding: '5px 10px',
+                      borderRadius: '5px',
+                      border: '1px solid #ccc',
+                      backgroundColor: selectedDays.includes(day) ? '#1b22b0ff' : 'white',
+                      color: selectedDays.includes(day) ? 'white' : '#333',
+                      cursor: 'pointer',
+                      userSelect: 'none'
+                    }}
+                  >
+                    {day}
+                  </button>
+                ))}
+              </div>
+
+              <div className="modal-buttons" style={{ marginTop: '1rem' }}>
                 <button className="cancel-btn" onClick={() => setShowModal(false)}>Cancel</button>
                 <button className="add-btn" onClick={addHabit}>Add</button>
               </div>

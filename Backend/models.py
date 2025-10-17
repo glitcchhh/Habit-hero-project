@@ -3,6 +3,7 @@ from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime, D
 from sqlalchemy.orm import relationship
 from database import Base
 from datetime import datetime
+from sqlalchemy.types import JSON
 
 class User(Base):
     __tablename__ = "users"
@@ -24,6 +25,8 @@ class Habit(Base):
     completed = Column(Boolean, default=False)
     category = Column(String, nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"))
+
+    scheduled_days = Column(JSON, nullable=True)  # JSON column to store array
     
     # Streak tracking fields
     current_streak = Column(Integer, default=0)
