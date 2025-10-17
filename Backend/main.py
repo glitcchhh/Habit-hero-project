@@ -67,6 +67,20 @@ def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
     return db_user
 
 
+@app.post("/login/")
+def login(user: schemas.UserLogin, db: Session = Depends(get_db)):
+    # Check if email exists
+    db_user = db.query(models.User).filter(models.User.email == user.email).first()
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Verify password
+    if not verify_password(user.password, db_user.password):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    return {"success": True, "message": "Login successful", "user_id": db_user.id, "name": db_user.name}
+
+
 @app.get("/users/", response_model=List[schemas.User])
 def get_users(db: Session = Depends(get_db)):
     return db.query(models.User).all()

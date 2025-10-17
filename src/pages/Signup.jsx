@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Signup.css";
+import {Link} from "react-router-dom";
 
 function CreateAccount() {
   const [formData, setFormData] = useState({
@@ -72,7 +73,7 @@ function CreateAccount() {
         <div className="form-content">
           <h2 className="form-title">Create an account</h2>
           <p className="login-link">
-            Already have an account? <a href="#">Log in</a>
+            Already have an account? <Link to="/login">Log in</Link>
           </p>
 
           <form onSubmit={handleSubmit} className="form-fields">

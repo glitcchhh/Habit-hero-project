@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Login.css";
 
 function LoginPage() {
@@ -9,19 +10,50 @@ function LoginPage() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    setError("");
+    setSuccess("");
+
     if (!formData.email || !formData.password) {
       setError("Please fill in all fields");
       return;
     }
-    setError("");
-    alert("Login successful!");
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/login/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("✅ Login successful:", data);
+        setSuccess(`Welcome back, ${data.name}!`);
+        setError("");
+        navigate("/home");
+        
+        // Optionally store user info or token in localStorage
+        // localStorage.setItem("user", JSON.stringify(data));
+      } else {
+        const err = await response.json();
+        setError(err.detail || "Invalid email or password");
+      }
+    } catch (err) {
+      console.error("❌ Login error:", err);
+      setError("Unable to connect to server. Please try again later.");
+    }
   };
 
   return (
@@ -30,7 +62,7 @@ function LoginPage() {
         <div className="form-content">
           <h2 className="form-title">Log in to your account</h2>
           <p className="login-link">
-            Don’t have an account? <a href="#">Create one</a>
+            Don’t have an account? <a href="/signup">Create one</a>
           </p>
 
           <form onSubmit={handleSubmit} className="form-fields">
@@ -59,6 +91,7 @@ function LoginPage() {
             </div>
 
             {error && <p className="error-text">{error}</p>}
+            {success && <p className="success-text">{success}</p>}
 
             <div className="checkbox-group">
               <input
