@@ -1,185 +1,240 @@
-import React from "react";
+import React, { useState, useMemo } from 'react';
+import './Home.css'; // Import the separate CSS file
 
-// Habits Data
-const habits = [
-  { id: 1, name: "Meditating", completed: true },
-  { id: 2, name: "Read Philosophy", completed: true },
-  { id: 3, name: "Journaling", completed: false }
+// --- Icon Components ---
+const Icon = ({ name, className = "icon", color = "currentColor", strokeWidth = 2, children }) => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className={className}
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={color}
+        strokeWidth={strokeWidth}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+    >
+        {children}
+    </svg>
+);
+
+const Home = (props) => (
+    <Icon {...props}>
+        <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+    </Icon>
+);
+
+const Activity = (props) => (
+    <Icon {...props}>
+        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+    </Icon>
+);
+
+const Settings = (props) => (
+    <Icon {...props}>
+        <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.44a2 2 0 0 1-2 2H4.44a2 2 0 0 0-2 2v.44a2 2 0 0 1-2 2h-.44a2 2 0 0 0 2 2v.44a2 2 0 0 1 2 2h.44a2 2 0 0 0 2 2v.44a2 2 0 0 1 2 2h.44a2 2 0 0 0 2 2v.44a2 2 0 0 1 2 2h.44a2 2 0 0 0 2 2v-.44a2 2 0 0 1 2-2h.44a2 2 0 0 0 2-2v-.44a2 2 0 0 1-2-2h-.44a2 2 0 0 0-2-2v-.44a2 2 0 0 1-2-2h-.44a2 2 0 0 0-2-2v-.44a2 2 0 0 1-2-2h-.44a2 2 0 0 0-2-2v-.44a2 2 0 0 1-2-2z"/>
+        <circle cx="12" cy="12" r="3"/>
+    </Icon>
+);
+
+const Plus = (props) => (
+    <Icon {...props}>
+        <path d="M5 12h14"/>
+        <path d="M12 5v14"/>
+    </Icon>
+);
+
+const Calendar = (props) => (
+    <Icon {...props}>
+        <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
+        <line x1="16" x2="16" y1="2" y2="6"/>
+        <line x1="8" x2="8" y1="2" y2="6"/>
+        <line x1="3" x2="21" y1="10" y2="10"/>
+    </Icon>
+);
+
+const EllipsisVertical = (props) => (
+    <Icon {...props}>
+        <circle cx="12" cy="12" r="1"/>
+        <circle cx="12" cy="5" r="1"/>
+        <circle cx="12" cy="19" r="1"/>
+    </Icon>
+);
+
+const CheckSquare = (props) => (
+    <Icon {...props}>
+        <polyline points="9 11 12 14 22 4"/>
+        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+    </Icon>
+);
+
+const Square = (props) => (
+    <Icon {...props}>
+        <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
+    </Icon>
+);
+
+// --- Progress Circle Component ---
+const ProgressCircle = ({ percent }) => {
+    const radius = 50;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (percent / 100) * circumference;
+
+    return (
+        <div className="progress-circle-container">
+            <svg viewBox="0 0 120 120" className="progress-circle">
+                <circle cx="60" cy="60" r={radius} fill="none" stroke="#f0f0f0" strokeWidth="10"></circle>
+                <circle
+                    cx="60"
+                    cy="60"
+                    r={radius}
+                    fill="none"
+                    stroke="url(#progressGradient)"
+                    strokeWidth="10"
+                    strokeDasharray={circumference}
+                    strokeDashoffset={offset}
+                    strokeLinecap="round"
+                />
+                <defs>
+                    <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="#FF8C00" stopOpacity="1" />
+                        <stop offset="100%" stopColor="#FF4500" stopOpacity="1" />
+                    </linearGradient>
+                </defs>
+            </svg>
+            <div className="progress-circle-text">
+                <span>{percent}%</span>
+            </div>
+        </div>
+    );
+};
+
+// --- Initial Habits ---
+const initialHabits = [
+    { id: 1, name: 'Meditating', completed: true },
+    { id: 2, name: 'Read Philosophy', completed: true },
+    { id: 3, name: 'Journaling', completed: true },
+    { id: 4, name: 'Exercise for 30 mins', completed: false },
+    { id: 5, name: 'Plan next day', completed: false },
 ];
 
-function HomePage() {
-  const completed = habits.filter(h => h.completed).length;
-  const total = habits.length;
-  const percent = Math.round((completed / total) * 100);
+// --- Habit Card ---
+const HabitCard = ({ habit, toggleHabit }) => {
+    const isCompleted = habit.completed;
 
-  return (
-    <div style={{
-      minHeight: "100vh",
-      width: "100vw",
-      background: "#faf8f7",
-      fontFamily: "'Poppins', Arial, sans-serif"
-    }}>
-      {/* Top Navigation Bar */}
-      <header style={{
-        width: "100%",
-        background: "#fff",
-        boxShadow: "0 2px 10px rgba(0,0,0,0.06)",
-        padding: "16px 0",
-        marginBottom: 32,
-        textAlign: "center"
-      }}>
-        <h1 style={{
-          fontWeight: 700, fontSize: 26, letterSpacing: "-1px",
-          color: "#FB9930"
-        }}>
-          Habit Tracker
-        </h1>
-      </header>
-
-      <main style={{
-        maxWidth: 420,
-        margin: "0 auto",
-        background: "#fff",
-        borderRadius: 18,
-        padding: 28,
-        boxShadow: "0 3px 16px rgba(200,150,90,0.09)"
-      }}>
-        {/* Greeting and Date */}
-        <div style={{ marginBottom: 14 }}>
-          <div style={{ fontSize: 15, color: "#888", marginBottom: 4 }}>
-            Sun, 1 March 2022
-          </div>
-          <div style={{ fontSize: 26, fontWeight: 700 }}>
-            Hello, <span style={{ color: "#FB9930" }}>Susy!</span>
-          </div>
+    return (
+        <div
+            className={`habit-card ${isCompleted ? 'completed' : ''}`}
+            onClick={() => toggleHabit(habit.id)}
+        >
+            <span className={`habit-title ${isCompleted ? 'completed' : ''}`}>{habit.name}</span>
+            <div className="flex items-center space-x-2">
+                <div className="checkbox-icon">
+                    {isCompleted ? (
+                        <CheckSquare color="var(--success-green)" strokeWidth={3} />
+                    ) : (
+                        <Square color="#9ca3af" strokeWidth={3} />
+                    )}
+                </div>
+                <EllipsisVertical color="#9ca3af" />
+            </div>
         </div>
-        
-        {/* Progress Card */}
-        <section style={{
-          background: "linear-gradient(90deg, #FF822E 60%, #FB9930 100%)",
-          borderRadius: 16,
-          padding: "22px 28px 18px 20px",
-          margin: "22px 0",
-          color: "#fff",
-          position: "relative"
-        }}>
-          <div style={{ display: "flex", alignItems: "center" }}>
-            {/* Circular Progress */}
-            <div style={{ position: "relative", width: 75, height: 75 }}>
-              <svg width="75" height="75">
-                <circle
-                  cx="37.5" cy="37.5" r="32"
-                  stroke="#fff" strokeWidth="7"
-                  fill="none"
-                  opacity="0.20"
-                />
-                <circle
-                  cx="37.5" cy="37.5" r="32"
-                  stroke="#fff" strokeWidth="7"
-                  fill="none"
-                  strokeDasharray={2 * Math.PI * 32}
-                  strokeDashoffset={2 * Math.PI * 32 * (1 - percent/100)}
-                  strokeLinecap="round"
-                  style={{ transition: "stroke-dashoffset 1s" }}
-                />
-              </svg>
-              <div style={{
-                position: "absolute", left: 0, top: 0,
-                width: "75px", height: "75px",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 18, fontWeight: 700
-              }}>
-                {percent}%
-              </div>
-            </div>
-            <div style={{ marginLeft: 26 }}>
-              <div style={{ fontSize: 18, fontWeight: 600 }}>
-                {completed} of {total} habits
-              </div>
-              <div style={{ fontSize: 15, opacity: 0.87 }}>completed today!</div>
-            </div>
-          </div>
-        </section>
+    );
+};
 
-        {/* Today's Habits List */}
-        <section>
-          <div style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: 8
-          }}>
-            <div style={{ fontWeight: 600, fontSize: 18 }}>
-              Today Habit
-            </div>
-            <a href="#" style={{ color: "#FB9930", fontSize: 13, textDecoration: "none" }}>See all</a>
-          </div>
-          <div style={{}}>
-            {habits.map(habit => (
-              <div key={habit.id} style={{
-                display: "flex",
-                alignItems: "center",
-                borderBottom: "1px solid #f3efee",
-                padding: "12px 0"
-              }}>
-                <span style={{
-                  fontSize: 16,
-                  flex: 1,
-                  color: habit.completed ? "#15b798" : "#222",
-                  opacity: habit.completed ? 0.7 : 1
-                }}>{habit.name}</span>
-                {habit.completed
-                  ? <span style={{
-                      width: 26, height: 26,
-                      background: "#E8F8F3", borderRadius: 8,
-                      display: "inline-flex", alignItems: "center", justifyContent: "center"
-                    }}>
-                      <svg width="16" height="16" fill="#15b798"><path d="M13.6 5.7l-5.1 6.3c-.3.3-.8.4-1.1.1l-3.2-3.1c-.3-.3-.3-.8 0-1.1.3-.3.8-.3 1.1 0l2.7 2.6 4.7-5.7c.3-.3.8-.4 1.1-.1.4.3.5.8.1 1.1z"/></svg>
-                    </span>
-                  : <input type="checkbox" style={{ width: 21, height: 21, accentColor: "#FB9930" }}/>
-                }
-              </div>
-            ))}
-          </div>
-        </section>
+// --- Main App ---
+const HomePage = () => {
+    const [habits, setHabits] = useState(initialHabits);
 
-        {/* Goals area */}
-        <section style={{
-          background: "#F7F7F6",
-          borderRadius: 14,
-          padding: "16px 13px",
-          margin: "28px 0 10px 0",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between"
-        }}>
-          <div style={{ fontWeight: 600, fontSize: 16 }}>
-            Your Goals
-          </div>
-          <button style={{
-            width: 36, height: 36,
-            background: "#15b798",
-            color: "#fff",
-            border: "none",
-            borderRadius: "50%",
-            fontSize: 24,
-            fontWeight: 700,
-            cursor: "pointer"
-          }}>+</button>
-        </section>
-      </main>
-      {/* Footer */}
-      <footer style={{
-        width: "100%",
-        textAlign: "center",
-        marginTop: 68,
-        color: "#bbb",
-        fontSize: 14
-      }}>
-        &copy; 2025 Habit Tracker Web
-      </footer>
-    </div>
-  );
-}
+    const toggleHabit = (id) => {
+        setHabits(prev =>
+            prev.map(habit =>
+                habit.id === id ? { ...habit, completed: !habit.completed } : habit
+            )
+        );
+    };
+
+    const { completedCount, totalCount, progressPercent } = useMemo(() => {
+        const completed = habits.filter(h => h.completed).length;
+        const total = habits.length;
+        const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+        return { completedCount: completed, totalCount: total, progressPercent: percent };
+    }, [habits]);
+
+    return (
+        <div className="app-container">
+            <div className="main-card">
+
+                {/* Header */}
+                <header className="header">
+                    <p>Sun, 1 March 2022</p>
+                    <h1>
+                        Hello, <span>Susy!</span>
+                    </h1>
+                </header>
+
+                {/* Progress Card */}
+                <div className="progress-card">
+                    <Calendar className="calendar-bg" />
+                    <div className="progress-circle-wrapper">
+                        <ProgressCircle percent={progressPercent} />
+                    </div>
+                    <div className="progress-text">
+                        <h2>{completedCount} of {totalCount} habits completed today!</h2>
+                        <p>Keep up the great work.</p>
+                    </div>
+                </div>
+
+                {/* Today's Habits */}
+                <section className="section">
+                    <div className="section-header">
+                        <h2>Today's Habits</h2>
+                        <a href="#">See all</a>
+                    </div>
+                    <div className="section-content">
+                        {habits.slice(0, 4).map(habit => (
+                            <HabitCard key={habit.id} habit={habit} toggleHabit={toggleHabit} />
+                        ))}
+                    </div>
+                </section>
+
+                {/* Your Goals */}
+                <section className="section">
+                    <div className="section-header">
+                        <h2>Your Goals</h2>
+                        <a href="#">See all</a>
+                    </div>
+                    <div className="goal-card">
+                        <p>Goal: Run a half marathon by December</p>
+                    </div>
+                </section>
+
+                {/* Bottom Navigation */}
+                <nav className="bottom-nav">
+                    <a href="#" className="nav-link active">
+                        <Home />
+                        <span>Home</span>
+                    </a>
+                    <a href="#" className="nav-link">
+                        <Activity />
+                        <span>Stats</span>
+                    </a>
+                    <a href="#" className="nav-link">
+                        <Settings />
+                        <span>Settings</span>
+                    </a>
+                </nav>
+
+                {/* Floating Action Button */}
+                <button className="fab">
+                    <Plus />
+                </button>
+
+            </div>
+        </div>
+    );
+};
 
 export default HomePage;

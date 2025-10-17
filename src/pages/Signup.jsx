@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Signup.css";
 
 function CreateAccount() {
@@ -11,6 +12,7 @@ function CreateAccount() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -24,6 +26,7 @@ function CreateAccount() {
     }
     setError("");
     alert("Account created successfully!");
+    navigate("/home");
   };
 
   return (
