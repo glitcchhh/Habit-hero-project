@@ -127,7 +127,7 @@ const AllHabitsPage = () => {
       <div className="main-card">
         <header className="header">
           <button 
-            onClick={() => navigate('/')} 
+            onClick={() => navigate('/home')} 
             style={{ 
               background: 'none', 
               border: 'none', 

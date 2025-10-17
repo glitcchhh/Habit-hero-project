@@ -4,6 +4,7 @@ import CreateAccount from "./pages/Signup";
 import HomePage from "./pages/Home";
 import LoginPage from "./pages/Login";
 import AllHabitsPage from "./pages/Allhabits";
+import StatsPage from "./pages/StatsPage";
 
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
         <Route path="/login" element={<LoginPage/>}/>
         <Route path="/signup" element={<CreateAccount/>}/>
         <Route path="/allhabits" element={<AllHabitsPage/>}/>
+        <Route path="/stats" element={<StatsPage/>}/>
       </Routes>
     </BrowserRouter>
   );

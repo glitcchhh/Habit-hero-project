@@ -4,26 +4,7 @@ import axios from 'axios';
 import './Home.css';
 import { Home, Activity, Settings, Plus, Calendar, CheckSquare, Square, EllipsisVertical } from "../components/Icons";
 
-
-// --- Icon Components (keep as-is) ---
-const Icon = ({ className = "icon", color = "currentColor", strokeWidth = 2, children }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className={className}
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke={color}
-    strokeWidth={strokeWidth}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    {children}
-  </svg>
-);
-
-// --- Progress Circle (keep as-is) ---
+// --- Progress Circle ---
 const ProgressCircle = ({ percent }) => {
   const radius = 50;
   const circumference = 2 * Math.PI * radius;
@@ -94,7 +75,7 @@ const HomePage = () => {
   useEffect(() => {
     axios.get(`http://localhost:8000/habits/${USER_ID}`)
       .then(res => setHabits(res.data))
-      .catch(err => console.error(err));
+      .catch(err => console.error('Error fetching habits:', err));
   }, []);
 
   // --- Toggle habit completion ---
@@ -105,7 +86,7 @@ const HomePage = () => {
           prev.map(h => h.id === id ? res.data : h)
         );
       })
-      .catch(err => console.error(err));
+      .catch(err => console.error('Error toggling habit:', err));
   };
 
   // --- Add new habit ---
@@ -124,13 +105,7 @@ const HomePage = () => {
         setHabitType("Work");
         setShowModal(false);
       })
-      .catch(err => console.error(err));
-  };
-
-  // --- Handle navigation to all habits ---
-  const handleSeeAll = () => {
-    console.log('Navigating to /allhabits');
-    navigate('/allhabits');
+      .catch(err => console.error('Error adding habit:', err));
   };
 
   const { completedCount, totalCount, progressPercent } = useMemo(() => {
@@ -163,7 +138,7 @@ const HomePage = () => {
         <section className="section">
           <div className="section-header">
             <h2>Today's Habits</h2>
-            <button className="see-all-btn" onClick={handleSeeAll}>
+            <button className="see-all-btn" onClick={() => navigate('/allhabits')}>
               See all
             </button>
           </div>
@@ -178,18 +153,30 @@ const HomePage = () => {
 
         {/* Bottom Navigation */}
         <nav className="bottom-nav">
-          <a href="#" className="nav-link active">
-            <Home />
+          <button 
+            className="nav-link active"
+            onClick={() => navigate('/home')}
+            style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+          >
+            <Home /> 
             <span>Home</span>
-          </a>
-          <a href="#" className="nav-link">
+          </button>
+          <button 
+            className="nav-link"
+            onClick={() => navigate('/stats')}
+            style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+          >
             <Activity />
             <span>Stats</span>
-          </a>
-          <a href="#" className="nav-link">
+          </button>
+          <button 
+            className="nav-link"
+            onClick={() => navigate('/settings')}
+            style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+          >
             <Settings />
             <span>Settings</span>
-          </a>
+          </button>
         </nav>
 
         {/* Floating Add Button */}
