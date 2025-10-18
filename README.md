@@ -79,4 +79,16 @@ A modern, full-stack habit tracking application built with React and FastAPI. Tr
 - npm or yarn
 - pip
 
+### Running the Website
+-Running the backend server
+cd backend
+uvicorn main:app --reload
+
+-Running the Frontend server
+open a new powershell
+npm run dev
+
+
+
+
 ### Backend Setup (FastAPI)
