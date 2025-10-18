@@ -7,6 +7,7 @@ import CreateAccount from './pages/Signup';
 import HomePage from './pages/Home';
 import StatsPage from './pages/StatsPage';
 import AllHabitsPage from './pages/Allhabits';
+import Profile from './pages/Profile';
 
 
 // import SettingsPage from './Settings';
@@ -31,13 +32,22 @@ function App() {
             } 
           />
           
-          {/* Add other protected routes similarly */}
+          
            
           <Route 
             path="/stats" 
             element={
               <ProtectedRoute>
                 <StatsPage />
+              </ProtectedRoute>
+            } 
+          />
+
+         <Route 
+            path="/profile"
+            element={
+              <ProtectedRoute>  
+                <Profile />
               </ProtectedRoute>
             } 
           />

@@ -400,7 +400,7 @@ const HomePage = () => {
           </button>
           <button
             className="nav-link"
-            onClick={() => navigate('/settings')}
+            onClick={() => navigate('/profile')}
             style={{ background: 'none', border: 'none', cursor: 'pointer' }}
           >
             <Settings />

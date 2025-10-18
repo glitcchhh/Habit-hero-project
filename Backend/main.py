@@ -177,6 +177,10 @@ def login(user: schemas.UserLogin, db: Session = Depends(get_db)):
 def get_users(db: Session = Depends(get_db)):
     return db.query(models.User).all()
 
+#@app.put("/users/{user_id}")
+#def update_user(user_id: int, user: UserUpdate, db: Session = Depends(get_db)):
+    # Update user profile in profile page
+
 
 # ------------------- HABITS ------------------- #
 
