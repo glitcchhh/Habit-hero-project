@@ -37,12 +37,12 @@ const Profile = () => {
     { id: 6, title: "Night Owl", description: "Complete habits after 9 PM", icon: "🦉", unlocked: false }
   ]);
 
-  // Redirect if not logged in
+  
   useEffect(() => {
     if (!user) {
       navigate('/login');
     } else {
-      // Load user profile data
+      // Load user data
       setProfileData({
         name: user.name || '',
         email: user.email || '',
@@ -52,7 +52,7 @@ const Profile = () => {
         goal: user.goal || 'Build better habits every day!'
       });
       
-      // Fetch user statistics
+      // Fetch user stat
       fetchUserStats();
     }
   }, [user, navigate]);
@@ -63,11 +63,11 @@ const Profile = () => {
       const habitsRes = await axios.get(`http://localhost:8000/habits/${user.id}`);
       const habits = habitsRes.data;
       
-      // Fetch streak stats
+      // Fetch streak 
       const streakRes = await axios.get(`http://localhost:8000/habits/stats/${user.id}`);
       const streakStats = streakRes.data;
       
-      // Calculate statistics
+      // Calculate stat
       const completedToday = habits.filter(h => h.completed).length;
       const successRate = habits.length > 0 
         ? Math.round((completedToday / habits.length) * 100) 
@@ -82,7 +82,7 @@ const Profile = () => {
         successRate: successRate
       });
 
-      // Update achievements based on stats
+      // Update achievements
       updateAchievements(streakStats, habits.length);
     } catch (err) {
       console.error('Error fetching stats:', err);
@@ -113,7 +113,7 @@ const Profile = () => {
 
   const handleCancel = () => {
     setIsEditing(false);
-    // Reset to original data
+    
     setProfileData({
       name: user.name || '',
       email: user.email || '',
@@ -126,10 +126,10 @@ const Profile = () => {
 
   const handleSave = async () => {
     try {
-      // Update user profile via API
+      
       // await axios.put(`http://localhost:8000/users/${user.id}`, profileData);
       setIsEditing(false);
-      // Show success message
+      
       alert('Profile updated successfully!');
     } catch (err) {
       console.error('Error updating profile:', err);
@@ -149,7 +149,6 @@ const Profile = () => {
   return (
     <div className="profile-container">
       <div className="profile-card">
-        {/* Header */}
         <div className="profile-header">
           <div className="profile-header-content">
             <h1>Profile</h1>
@@ -161,9 +160,9 @@ const Profile = () => {
         </div>
 
         <div className="profile-content">
-          {/* Left Column - Profile Info */}
+          
           <div className="profile-left">
-            {/* Avatar & Basic Info */}
+          
             <div className="profile-info-card">
               <div className="avatar-section">
                 <div className="avatar">
@@ -283,9 +282,9 @@ const Profile = () => {
             </div>
           </div>
 
-          {/* Right Column - Stats & Achievements */}
+          {/*Stats & Achievements */}
           <div className="profile-right">
-            {/* Statistics */}
+            {/* Stats */}
             <div className="stats-card">
               <h2>Statistics</h2>
               <div className="stats-grid">
@@ -376,7 +375,7 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* Bottom Navigation */}
+      {/* Bottom Nav */}
       <nav className="bottom-nav">
         <button
           className="nav-link"

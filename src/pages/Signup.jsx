@@ -55,11 +55,11 @@ function CreateAccount() {
         return;
       }
 
-      // Signup successful
+      
       const data = await response.json();
       console.log("User created:", data);
 
-      // Automatically log in the user after signup
+      // Automatically log in 
       login({
         id: data.id,
         name: data.name,
@@ -67,7 +67,7 @@ function CreateAccount() {
       });
 
       setLoading(false);
-      navigate("/home"); // Redirect to home page
+      navigate("/home"); 
 
     } catch (err) {
       console.error("Error:", err);

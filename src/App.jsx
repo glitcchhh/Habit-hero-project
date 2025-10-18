@@ -18,11 +18,11 @@ function App() {
     <UserProvider>
       <Router>
         <Routes>
-          {/* Public routes */}
+          {/* Public  */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<CreateAccount />} />
           
-          {/* Protected routes */}
+          {/* Protected */}
           <Route 
             path="/home" 
             element={
@@ -62,7 +62,7 @@ function App() {
           />
           
           
-          {/* Default redirect */}
+          {/* Default */}
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>

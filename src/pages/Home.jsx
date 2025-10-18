@@ -172,7 +172,6 @@ const HomePage = () => {
     return filtered;
   }, [habits]);
 
-  // Redirect to login if not authenticated
   useEffect(() => {
     if (!user) {
       navigate('/login');
@@ -204,20 +203,18 @@ const HomePage = () => {
           return { day, percentage: 0 };
         }
         
-        // For past days, use random data (you can replace this with actual historical data from backend)
         const today = getCurrentDay();
         const todayIndex = days.indexOf(today);
         const dayIndex = days.indexOf(day);
         
         if (dayIndex < todayIndex) {
-          // Past days - simulate with random completion (you should fetch actual data from backend)
           const completed = Math.floor(Math.random() * dayHabits.length);
           return { 
             day, 
             percentage: Math.round((completed / dayHabits.length) * 100)
           };
         } else if (dayIndex === todayIndex) {
-          // Today - use actual completion
+          // Today 
           const completed = dayHabits.filter(h => h.completed).length;
           return { 
             day, 
@@ -399,7 +396,7 @@ const HomePage = () => {
           <WeeklyProgressGraph weeklyData={weeklyProgress} />
         </div>
 
-        {/* Separate AI Suggested Habits Box */}
+        {/*  AI Suggested Habits Box */}
         <div
           className="progress-card"
           style={{

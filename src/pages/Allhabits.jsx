@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useUser } from '../UserContext';
 import './Home.css';
 
-// --- Icon Components ---
+
 const Icon = ({ className = "icon", color = "currentColor", strokeWidth = 2, children }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -88,7 +88,7 @@ const HabitCard = ({ habit, onEdit, onDelete }) => (
   </div>
 );
 
-// --- Main Component ---
+
 const AllHabitsPage = () => {
   const [habits, setHabits] = useState([]);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -105,7 +105,7 @@ const AllHabitsPage = () => {
 
   const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-  // Redirect to login if not authenticated
+
   useEffect(() => {
     if (!user) {
       navigate('/login');
@@ -122,7 +122,7 @@ const AllHabitsPage = () => {
     }
   }, [user]);
 
-  // --- Edit habit handler ---
+ 
   const handleEdit = (habit) => {
     setEditingHabit(habit);
     setEditForm({
@@ -133,13 +133,11 @@ const AllHabitsPage = () => {
     setShowEditModal(true);
   };
 
-  // --- Delete habit handler ---
   const handleDelete = (habitId) => {
     setDeletingHabitId(habitId);
     setShowDeleteConfirm(true);
   };
 
-  // --- Confirm delete ---
   const confirmDelete = () => {
     if (deletingHabitId) {
       axios.delete(`http://localhost:8000/habits/${deletingHabitId}`)
@@ -152,7 +150,7 @@ const AllHabitsPage = () => {
     }
   };
 
-  // --- Toggle day selection for edit ---
+  
   const toggleEditDay = (day) => {
     setEditForm(prev => ({
       ...prev,
@@ -162,7 +160,6 @@ const AllHabitsPage = () => {
     }));
   };
 
-  // --- Save edited habit ---
   const saveEdit = () => {
     if (!editingHabit || !editForm.name.trim()) return;
 
@@ -180,7 +177,7 @@ const AllHabitsPage = () => {
       .catch(err => console.error('Error updating habit:', err));
   };
 
-  // --- Group habits by category ---
+ 
   const groupedHabits = habits.reduce((acc, habit) => {
     const category = habit.category || 'Uncategorized';
     if (!acc[category]) acc[category] = [];
@@ -188,7 +185,7 @@ const AllHabitsPage = () => {
     return acc;
   }, {});
 
-  // --- Define category order ---
+  
   const categoryOrder = [
     'Work',
     'Sports',
@@ -208,7 +205,7 @@ const AllHabitsPage = () => {
   });
 
   if (!user) {
-    return null; // or a loading spinner
+    return null; 
   }
 
   return (
@@ -289,7 +286,7 @@ const AllHabitsPage = () => {
               <option value="Mental Health">Mental Health</option>
             </select>
 
-            {/* Days of Week Selector */}
+            {/* Days Selector */}
             <div className="days-selector" style={{ marginTop: '1rem' }}>
               {daysOfWeek.map(day => (
                 <button

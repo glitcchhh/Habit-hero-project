@@ -6,7 +6,7 @@ import './Home.css';
 import { ArrowLeft, Calendar ,Home, Activity, Settings,Award, TrendingUp, Target, Edit2, Save, X} from '../components/Icons';
 //import {  Plus, User, Mail, Phone, Calendar, Award, TrendingUp, Target, Edit2, Save, X } from "../components/Icons";
 
-// --- Progress Circle Component ---
+// --- Progress Circle Comp---
 const ProgressCircle = ({ percent }) => {
   const radius = 50;
   const circumference = 2 * Math.PI * radius;
@@ -41,13 +41,12 @@ const ProgressCircle = ({ percent }) => {
   );
 };
 
-// --- Category Progress Card ---
 const CategoryProgressCard = ({ category, habits }) => {
   const completedCount = habits.filter(h => h.completed).length;
   const totalCount = habits.length;
   const progressPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
-  // Category emoji mapping
+  
   const categoryEmoji = {
     'Work': '💼',
     'Sports': '⚽',
@@ -85,20 +84,17 @@ const CategoryProgressCard = ({ category, habits }) => {
   );
 };
 
-// --- Main Stats Page ---
 const StatsPage = () => {
   const [habits, setHabits] = useState([]);
   const navigate = useNavigate();
   const { user } = useUser();
 
-  // Redirect to login if not authenticated
   useEffect(() => {
     if (!user) {
       navigate('/login');
     }
   }, [user, navigate]);
 
-  // --- Fetch habits from backend ---
   useEffect(() => {
     if (user) {
       axios
@@ -108,7 +104,6 @@ const StatsPage = () => {
     }
   }, [user]);
 
-  // --- Group habits by category ---
   const groupedHabits = habits.reduce((acc, habit) => {
     const category = habit.category || 'Uncategorized';
     if (!acc[category]) acc[category] = [];
@@ -116,7 +111,6 @@ const StatsPage = () => {
     return acc;
   }, {});
 
-  // --- Define category order ---
   const categoryOrder = [
     'Work',
     'Sports',
@@ -136,10 +130,9 @@ const StatsPage = () => {
   });
 
   if (!user) {
-    return null; // or a loading spinner
+    return null; 
   }
 
-  // --- Calculate overall progress ---
   const totalHabits = habits.length;
   const totalCompleted = habits.filter(h => h.completed).length;
   const overallPercent = totalHabits > 0 ? Math.round((totalCompleted / totalHabits) * 100) : 0;
@@ -170,7 +163,7 @@ const StatsPage = () => {
           </div>
         </div>
 
-        {/* Bottom Navigation */}
+        {/* Bottom Nav */}
       <nav className="bottom-nav">
         <button
           className="nav-link"

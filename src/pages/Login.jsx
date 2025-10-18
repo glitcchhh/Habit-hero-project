@@ -53,7 +53,7 @@ function LoginPage() {
         setSuccess(`Welcome back, ${data.name}!`);
         setError("");
         
-        // Redirect to home page
+        
         setTimeout(() => {
           navigate("/home");
         }, 500);
