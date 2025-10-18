@@ -401,10 +401,6 @@ const Profile = () => {
         </button>
       </nav>
 
-      {/* Floating Add Button */}
-      <button className="fab" onClick={() => navigate('/home')}>
-        <Plus />
-      </button>
     </div>
   );
 };
