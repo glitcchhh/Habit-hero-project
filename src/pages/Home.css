@@ -59,6 +59,9 @@ html, body, #root {
 /* --- Header --- */
 .header {
     padding: 2rem 0 1rem 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
 }
 
 .header p {
@@ -88,6 +91,20 @@ html, body, #root {
     }
 }
 
+/* --- Progress Cards Container --- */
+.progress-cards-container {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 1200px) {
+    .progress-cards-container {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* --- Progress Card --- */
 .progress-card {
     padding: 3rem;
@@ -101,7 +118,6 @@ html, body, #root {
     overflow: hidden;
     background: linear-gradient(135deg, var(--primary-purple) 0%, var(--dark-purple) 100%);
     box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
-    max-width: 800px;
 }
 
 .progress-card h2 {
@@ -149,6 +165,124 @@ html, body, #root {
     .progress-card p {
         font-size: 0.875rem;
     }
+}
+
+/* --- Weekly Progress Graph Card --- */
+.weekly-graph-card {
+    background: var(--card-bg);
+    border-radius: 2rem;
+    padding: 2rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+    border: 2px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.weekly-graph-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.weekly-graph-header h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.week-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    background-color: var(--hover-bg);
+    padding: 0.5rem 1rem;
+    border-radius: 1rem;
+}
+
+.weekly-graph-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 0.75rem;
+    padding: 1rem 0;
+}
+
+.graph-bar-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.graph-bar-container {
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    background: linear-gradient(180deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+    border-radius: 0.75rem;
+    padding: 0.25rem;
+    position: relative;
+}
+
+.graph-bar {
+    width: 100%;
+    max-width: 45px;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 0.5rem;
+    min-height: 20px;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+.graph-bar.today {
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    transform: scale(1.05);
+}
+
+.graph-bar:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+}
+
+.bar-percentage {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.graph-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+.graph-label.today-label {
+    color: var(--primary-purple);
+    font-weight: 700;
+    position: relative;
+}
+
+.graph-label.today-label::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    background: var(--primary-purple);
+    border-radius: 50%;
 }
 
 /* --- Streak Container --- */

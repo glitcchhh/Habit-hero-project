@@ -53,6 +53,51 @@ const ProgressCircle = ({ percent }) => {
   );
 };
 
+// --- Weekly Progress Graph Component ---
+const WeeklyProgressGraph = ({ weeklyData }) => {
+  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const maxHeight = 120;
+
+  return (
+    <div className="weekly-graph-card">
+      <div className="weekly-graph-header">
+        <h3>Weekly Progress</h3>
+        <span className="week-label">This Week</span>
+      </div>
+      <div className="weekly-graph-container">
+        {days.map((day, index) => {
+          const dayData = weeklyData.find(d => d.day === day) || { percentage: 0 };
+          const barHeight = (dayData.percentage / 100) * maxHeight;
+          const isToday = day === getCurrentDay();
+          
+          return (
+            <div key={day} className="graph-bar-wrapper">
+              <div className="graph-bar-container" style={{ height: `${maxHeight}px` }}>
+                <div 
+                  className={`graph-bar ${isToday ? 'today' : ''}`}
+                  style={{ 
+                    height: `${barHeight}px`,
+                    background: isToday 
+                      ? 'linear-gradient(180deg, #667eea 0%, #764ba2 100%)'
+                      : 'linear-gradient(180deg, rgba(102, 126, 234, 0.6) 0%, rgba(118, 75, 162, 0.6) 100%)'
+                  }}
+                >
+                  {dayData.percentage > 0 && (
+                    <span className="bar-percentage">{dayData.percentage}%</span>
+                  )}
+                </div>
+              </div>
+              <span className={`graph-label ${isToday ? 'today-label' : ''}`}>
+                {day}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
 // --- Habit Card ---
 const HabitCard = ({ habit, toggleHabit }) => (
   <div
@@ -75,6 +120,12 @@ const HabitCard = ({ habit, toggleHabit }) => (
   </div>
 );
 
+// Get current day of week
+const getCurrentDay = () => {
+  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  return days[new Date().getDay()];
+};
+
 // --- Main Component ---
 const HomePage = () => {
   const [habits, setHabits] = useState([]);
@@ -87,11 +138,36 @@ const HomePage = () => {
     longestStreak: 0,
     totalCompleted: 0
   });
+  const [weeklyProgress, setWeeklyProgress] = useState([]);
   
   const navigate = useNavigate();
   const { user, logout } = useUser();
 
   const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+  // Filter habits for today
+  const todaysHabits = useMemo(() => {
+    const currentDay = getCurrentDay();
+    console.log('Current Day:', currentDay);
+    console.log('All Habits:', habits);
+    
+    const filtered = habits.filter(habit => {
+      console.log('Checking habit:', habit.name, 'Scheduled days:', habit.scheduled_days);
+      
+      // If no scheduled days, show the habit every day
+      if (!habit.scheduled_days || habit.scheduled_days.length === 0) {
+        console.log('  -> No scheduled days, showing every day');
+        return true;
+      }
+      // Check if current day is in scheduled days
+      const shouldShow = habit.scheduled_days.includes(currentDay);
+      console.log('  -> Should show:', shouldShow);
+      return shouldShow;
+    });
+    
+    console.log('Filtered habits for today:', filtered);
+    return filtered;
+  }, [habits]);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -108,6 +184,51 @@ const HomePage = () => {
         .catch(err => console.error('Error fetching habits:', err));
     }
   }, [user]);
+
+  // --- Calculate weekly progress ---
+  useEffect(() => {
+    if (habits.length > 0) {
+      const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      const progress = days.map(day => {
+        const dayHabits = habits.filter(habit => {
+          if (!habit.scheduled_days || habit.scheduled_days.length === 0) {
+            return true;
+          }
+          return habit.scheduled_days.includes(day);
+        });
+        
+        if (dayHabits.length === 0) {
+          return { day, percentage: 0 };
+        }
+        
+        // For past days, use random data (you can replace this with actual historical data from backend)
+        const today = getCurrentDay();
+        const todayIndex = days.indexOf(today);
+        const dayIndex = days.indexOf(day);
+        
+        if (dayIndex < todayIndex) {
+          // Past days - simulate with random completion (you should fetch actual data from backend)
+          const completed = Math.floor(Math.random() * dayHabits.length);
+          return { 
+            day, 
+            percentage: Math.round((completed / dayHabits.length) * 100)
+          };
+        } else if (dayIndex === todayIndex) {
+          // Today - use actual completion
+          const completed = dayHabits.filter(h => h.completed).length;
+          return { 
+            day, 
+            percentage: Math.round((completed / dayHabits.length) * 100)
+          };
+        } else {
+          // Future days
+          return { day, percentage: 0 };
+        }
+      });
+      
+      setWeeklyProgress(progress);
+    }
+  }, [habits, todaysHabits]);
 
   // --- Toggle habit completion ---
   const toggleHabit = (id) => {
@@ -135,7 +256,7 @@ const HomePage = () => {
       name: newHabit.trim(),
       completed: false,
       category: habitType,
-      user_id: user.id, // Use logged-in user's ID
+      user_id: user.id,
       scheduled_days: selectedDays
     })
       .then(res => {
@@ -149,11 +270,11 @@ const HomePage = () => {
   };
 
   const { completedCount, totalCount, progressPercent } = useMemo(() => {
-    const completed = habits.filter(h => h.completed).length;
-    const total = habits.length;
+    const completed = todaysHabits.filter(h => h.completed).length;
+    const total = todaysHabits.length;
     const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
     return { completedCount: completed, totalCount: total, progressPercent: percent };
-  }, [habits]);
+  }, [todaysHabits]);
 
   // --- Fetch streak statistics ---
   useEffect(() => {
@@ -175,7 +296,7 @@ const HomePage = () => {
   };
 
   if (!user) {
-    return null; // or a loading spinner
+    return null;
   }
 
   return (
@@ -185,6 +306,9 @@ const HomePage = () => {
           <div>
             <p>{new Date().toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}</p>
             <h1>Hello, <span>{user.name}!</span></h1>
+            <p style={{ fontSize: '14px', color: '#666', marginTop: '4px' }}>
+              Showing habits for {getCurrentDay()}
+            </p>
           </div>
           <button onClick={handleLogout} style={{
             padding: '8px 16px',
@@ -221,16 +345,22 @@ const HomePage = () => {
           />
         </div>
 
-        {/* Progress Card */}
-        <div className="progress-card">
-          <Calendar className="calendar-bg" />
-          <div className="progress-circle-wrapper">
-            <ProgressCircle percent={progressPercent} />
+        {/* Progress Cards Container */}
+        <div className="progress-cards-container">
+          {/* Progress Card */}
+          <div className="progress-card">
+            <Calendar className="calendar-bg" />
+            <div className="progress-circle-wrapper">
+              <ProgressCircle percent={progressPercent} />
+            </div>
+            <div className="progress-text">
+              <h2>{completedCount} of {totalCount} habits completed today!</h2>
+              <p>Keep up the great work.</p>
+            </div>
           </div>
-          <div className="progress-text">
-            <h2>{completedCount} of {totalCount} habits completed today!</h2>
-            <p>Keep up the great work.</p>
-          </div>
+
+          {/* Weekly Progress Graph */}
+          <WeeklyProgressGraph weeklyData={weeklyProgress} />
         </div>
 
         {/* Habits */}
@@ -242,10 +372,10 @@ const HomePage = () => {
             </button>
           </div>
           <div className="section-content">
-            {habits.length === 0 ? (
-              <p className="no-habits">No habits yet. Click + to add one!</p>
+            {todaysHabits.length === 0 ? (
+              <p className="no-habits">No habits scheduled for today. Click + to add one!</p>
             ) : (
-              habits.map(h => <HabitCard key={h.id} habit={h} toggleHabit={toggleHabit} />)
+              todaysHabits.map(h => <HabitCard key={h.id} habit={h} toggleHabit={toggleHabit} />)
             )}
           </div>
         </section>
