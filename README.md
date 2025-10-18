@@ -43,7 +43,7 @@ A modern, full-stack habit tracking application built with React and FastAPI. Tr
   - 🌅 Early Bird - Complete habits before 9 AM
   - 🦉 Night Owl - Complete habits after 9 PM
 
-### 🔐 Authentication & Security
+### Authentication & Security
 - Secure User Registration - Password hashing with pbkdf2_sha256
 - User Login System - Session management with localStorage
 - Protected Routes - Secure pages requiring authentication
