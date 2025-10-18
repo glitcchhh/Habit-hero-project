@@ -1,5 +1,5 @@
 # main.py
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends ,Request
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from sqlalchemy import func
@@ -8,6 +8,8 @@ from typing import List
 from datetime import date, timedelta
 import models, schemas
 from database import SessionLocal, engine, Base
+import openai
+import os
 
 # --- Create all database tables ---
 Base.metadata.create_all(bind=engine)
@@ -177,9 +179,7 @@ def login(user: schemas.UserLogin, db: Session = Depends(get_db)):
 def get_users(db: Session = Depends(get_db)):
     return db.query(models.User).all()
 
-#@app.put("/users/{user_id}")
-#def update_user(user_id: int, user: UserUpdate, db: Session = Depends(get_db)):
-    # Update user profile in profile page
+
 
 
 # ------------------- HABITS ------------------- #
@@ -295,6 +295,48 @@ def update_habit(habit_id: int, habit_update: schemas.HabitUpdate, db: Session =
     db.commit()
     db.refresh(habit)
     return habit
+
+#----------------Habit suggestion using OpenAI------------------------------
+client = openai.OpenAI(api_key="API_KEY")
+
+@app.post("/ai/habit-suggestions")
+async def habit_suggestions(request: Request):
+    data = await request.json()
+    habits = data.get("habits", [])  # List of habit names or dicts
+    
+    if not habits:
+        raise HTTPException(status_code=400, detail="No habits provided")
+    
+    # Create prompt string based on habits
+    habit_list_str = ", ".join(habits)
+    prompt = (
+        f"Given the following existing habits: {habit_list_str}, "
+        "suggest 3 fun and quirky new habits that go well with them. "
+        "Present each habit with a catchy name and a short, playful description."
+        "The response should sound friendly and casual, like youre chatting with a buddy. Format it like: Hey, your todays suggestions include  [list of suggested habits and descriptions]. No bold words or formal tone."
+    )
+       
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=150,
+            n=1,
+            temperature=0.7,
+        )
+        suggestions = response.choices[0].message.content.strip()
+        return {"suggestions": suggestions}
+    except Exception as e:
+        # Fallback suggestions when API is not available
+        fallback_suggestions = """Based on your current habits, here are some complementary suggestions:
+
+1. **Morning Stretching** - A gentle way to start your day and complement your exercise routine
+2. **Journal Writing** - Great for reflection and mental clarity alongside meditation
+3. **Hydration Tracking** - Essential for overall health and wellness
+
+These suggestions are generated locally when AI services are unavailable."""
+        return {"suggestions": fallback_suggestions}
 
 
 # ------------------- GOALS ------------------- #

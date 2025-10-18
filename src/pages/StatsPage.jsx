@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useUser } from '../UserContext';
 import './Home.css';
-import { ArrowLeft, Calendar } from '../components/Icons';
+import { ArrowLeft, Calendar ,Home, Activity, Settings,Award, TrendingUp, Target, Edit2, Save, X} from '../components/Icons';
+//import {  Plus, User, Mail, Phone, Calendar, Award, TrendingUp, Target, Edit2, Save, X } from "../components/Icons";
 
 // --- Progress Circle Component ---
 const ProgressCircle = ({ percent }) => {
@@ -147,20 +148,7 @@ const StatsPage = () => {
     <div className="app-container">
       <div className="main-card">
         <header className="header">
-          <button 
-            onClick={() => navigate('/home')} 
-            style={{ 
-              background: 'none', 
-              border: 'none', 
-              cursor: 'pointer',
-              padding: '8px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}
-          >
-            <ArrowLeft color="#333" strokeWidth={2} />
-          </button>
+          
           <div>
             <h1>Statistics</h1>
             <p>Track your progress</p>
@@ -182,6 +170,31 @@ const StatsPage = () => {
           </div>
         </div>
 
+        {/* Bottom Navigation */}
+      <nav className="bottom-nav">
+        <button
+          className="nav-link"
+          onClick={() => navigate('/home')}
+        >
+          <Home />
+          <span>Home</span>
+        </button>
+        <button
+          className="nav-link active"
+          onClick={() => navigate('/stats')}
+        >
+          <Activity />
+          <span>Stats</span>
+        </button>
+        <button
+          className="nav-link "
+          onClick={() => navigate('/profile')}
+        >
+          <Settings />
+          <span>Profile</span>
+        </button>
+      </nav>
+
         {/* Category Progress Cards */}
         <section className="section">
           <div className="section-header">
@@ -197,6 +210,9 @@ const StatsPage = () => {
                   category={category}
                   habits={groupedHabits[category]}
                 />
+
+
+                
               ))
             )}
           </div>

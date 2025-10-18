@@ -621,7 +621,7 @@ html::before {
     right: 2.5rem;
     width: 4rem;
     height: 4rem;
-    border-radius: 50%;
+    border-radius: 20%;
     background: linear-gradient(135deg, var(--primary-purple), var(--dark-purple));
     color: #fff;
     border: none;

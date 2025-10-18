@@ -41,8 +41,9 @@ const ProgressCircle = ({ percent }) => {
         />
         <defs>
           <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#3006946e" />
-            <stop offset="100%" stopColor="#1b22b0ff" />
+            <stop offset="0%" stopColor="#ff6b35" />
+            <stop offset="100%" stopColor=" #f7931e" />
+      
           </linearGradient>
         </defs>
       </svg>
@@ -139,6 +140,8 @@ const HomePage = () => {
     totalCompleted: 0
   });
   const [weeklyProgress, setWeeklyProgress] = useState([]);
+  const [aiSuggestions, setAiSuggestions] = useState("");
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   
   const navigate = useNavigate();
   const { user, logout } = useUser();
@@ -230,6 +233,32 @@ const HomePage = () => {
     }
   }, [habits, todaysHabits]);
 
+  // --- Fetch AI suggestions ---
+  const fetchAISuggestions = async () => {
+    if (!user?.id || habits.length === 0) return;
+    
+    setLoadingSuggestions(true);
+    try {
+      const habitNames = habits.map(habit => habit.name);
+      const response = await axios.post('http://localhost:8000/ai/habit-suggestions', {
+        habits: habitNames
+      });
+      setAiSuggestions(response.data.suggestions);
+    } catch (error) {
+      console.error('Error fetching AI suggestions:', error);
+      setAiSuggestions("Unable to load suggestions at the moment.");
+    } finally {
+      setLoadingSuggestions(false);
+    }
+  };
+
+  // --- Load AI suggestions when habits change ---
+  useEffect(() => {
+    if (habits.length > 0) {
+      fetchAISuggestions();
+    }
+  }, [habits]);
+
   // --- Toggle habit completion ---
   const toggleHabit = (id) => {
     axios.put(`http://localhost:8000/habits/${id}`)
@@ -311,17 +340,24 @@ const HomePage = () => {
             </p>
           </div>
           <button onClick={handleLogout} style={{
-            padding: '8px 16px',
-            background: '#ff6b35',
+            padding: '0.75rem 1.5rem',
+            background: 'linear-gradient(135deg, #ff6b35, #f7931e)',
             color: 'white',
             border: 'none',
-            borderRadius: '8px',
+            borderRadius: '1rem',
             cursor: 'pointer',
-            fontSize: '14px'
+            fontSize: '1rem',
+            fontweight: '600',
+            transition: 'all 0.2s',
+            boxshadow: '0 4px 12px rgba(255, 107, 53, 0.3',
           }}>
             Logout
           </button>
         </header>
+
+   
+    
+
 
         {/* Streak Tracker */}
         <div className="streak-container">
@@ -363,6 +399,27 @@ const HomePage = () => {
           <WeeklyProgressGraph weeklyData={weeklyProgress} />
         </div>
 
+        {/* Separate AI Suggested Habits Box */}
+        <div
+          className="progress-card"
+          style={{
+            marginTop: '2rem',
+            flexDirection: 'column',
+            minHeight: '150px',
+            padding: '1rem',
+            justifyContent: 'center',
+          }}
+        >
+          <h2 style={{ marginBottom: '1rem', color: 'white' }}>Suggested Habits using AI</h2>
+          {loadingSuggestions ? (
+            <p style={{ color: 'white' }}>Loading suggestions...</p>
+          ) : (
+            <p style={{ color: 'white', whiteSpace: 'pre-line' }}>
+              {aiSuggestions || "No suggestions available at the moment."}
+            </p>
+          )}
+        </div>
+
         {/* Habits */}
         <section className="section">
           <div className="section-header">
@@ -381,32 +438,29 @@ const HomePage = () => {
         </section>
 
         {/* Bottom Navigation */}
-        <nav className="bottom-nav">
-          <button
-            className="nav-link active"
-            onClick={() => navigate('/home')}
-            style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-          >
-            <Home />
-            <span>Home</span>
-          </button>
-          <button
-            className="nav-link"
-            onClick={() => navigate('/stats')}
-            style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-          >
-            <Activity />
-            <span>Stats</span>
-          </button>
-          <button
-            className="nav-link"
-            onClick={() => navigate('/profile')}
-            style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-          >
-            <Settings />
-            <span>Settings</span>
-          </button>
-        </nav>
+      <nav className="bottom-nav">
+        <button
+          className="nav-link active"
+          onClick={() => navigate('/home')}
+        >
+          <Home />
+          <span>Home</span>
+        </button>
+        <button
+          className="nav-link"
+          onClick={() => navigate('/stats')}
+        >
+          <Activity />
+          <span>Stats</span>
+        </button>
+        <button
+          className="nav-link "
+          onClick={() => navigate('/profile')}
+        >
+          <Settings />
+          <span>Profile</span>
+        </button>
+      </nav>
 
         {/* Floating Add Button */}
         <button className="fab" onClick={() => setShowModal(true)}>

@@ -123,20 +123,7 @@ function LoginPage() {
           </div>
         </div>
 
-        {/* Decorative geometric SVG art */}
-        <div className="art-box">
-          <svg width="120" height="120" viewBox="0 0 100 100">
-            <polygon
-              points="30,10 90,40 70,90 10,70"
-              stroke="#000"
-              strokeWidth="1"
-              fill="none"
-            />
-            <circle cx="20" cy="20" r="3" fill="#000" />
-            <circle cx="85" cy="80" r="3" fill="#000" />
-            <rect x="10" y="90" width="20" height="3" fill="#000" />
-          </svg>
-        </div>
+        
       </div>
     </div>
   );

@@ -58,14 +58,14 @@ function CreateAccount() {
       // Signup successful
       const data = await response.json();
       console.log("User created:", data);
-      
+
       // Automatically log in the user after signup
       login({
         id: data.id,
         name: data.name,
         email: data.email
       });
-      
+
       setLoading(false);
       navigate("/home"); // Redirect to home page
 
@@ -77,16 +77,16 @@ function CreateAccount() {
   };
 
   return (
-    <div className="page-container">
-      <div className="form-box">
-        <div className="form-content">
-          <h2 className="form-title">Create an account</h2>
-          <p className="login-link">
+    <div className="signup-page-container">
+      <div className="signup-form-box">
+        <div className="signup-form-content">
+          <h2 className="signup-form-title">Create an account</h2>
+          <p className="signup-login-link">
             Already have an account? <Link to="/login">Log in</Link>
           </p>
 
-          <form onSubmit={handleSubmit} className="form-fields">
-            <div className="input-group">
+          <form onSubmit={handleSubmit} className="signup-form-fields">
+            <div className="signup-input-group">
               <label>Full Name</label>
               <input
                 type="text"
@@ -98,7 +98,7 @@ function CreateAccount() {
               />
             </div>
 
-            <div className="input-group">
+            <div className="signup-input-group">
               <label>Email</label>
               <input
                 type="email"
@@ -110,7 +110,7 @@ function CreateAccount() {
               />
             </div>
 
-            <div className="input-group">
+            <div className="signup-input-group">
               <label>Phone</label>
               <input
                 type="tel"
@@ -121,7 +121,7 @@ function CreateAccount() {
               />
             </div>
 
-            <div className="input-group">
+            <div className="signup-input-group">
               <label>Password</label>
               <input
                 type={showPassword ? "text" : "password"}
@@ -133,7 +133,7 @@ function CreateAccount() {
               />
             </div>
 
-            <div className="input-group">
+            <div className="signup-input-group">
               <label>Confirm Password</label>
               <input
                 type={showPassword ? "text" : "password"}
@@ -143,10 +143,10 @@ function CreateAccount() {
                 onChange={handleChange}
                 required
               />
-              {error && <p className="error-text">{error}</p>}
+              {error && <p className="signup-error-text">{error}</p>}
             </div>
 
-            <div className="checkbox-group">
+            <div className="signup-checkbox-group">
               <input
                 type="checkbox"
                 checked={showPassword}
@@ -155,24 +155,10 @@ function CreateAccount() {
               <label>Show password</label>
             </div>
 
-            <button type="submit" className="submit-btn" disabled={loading}>
+            <button type="submit" className="signup-submit-btn" disabled={loading}>
               {loading ? "Creating Account..." : "Create an account"}
             </button>
           </form>
-        </div>
-
-        <div className="art-box">
-          <svg width="120" height="120" viewBox="0 0 100 100">
-            <polygon
-              points="30,10 90,40 70,90 10,70"
-              stroke="#000"
-              strokeWidth="1"
-              fill="none"
-            />
-            <circle cx="20" cy="20" r="3" fill="#000" />
-            <circle cx="85" cy="80" r="3" fill="#000" />
-            <rect x="10" y="90" width="20" height="3" fill="#000" />
-          </svg>
         </div>
       </div>
     </div>
