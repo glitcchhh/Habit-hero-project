@@ -8,7 +8,7 @@ from typing import List
 from datetime import date, timedelta
 import models, schemas
 from database import SessionLocal, engine, Base
-import openai
+import httpx
 import os
 
 # --- Create all database tables ---
@@ -297,47 +297,61 @@ def update_habit(habit_id: int, habit_update: schemas.HabitUpdate, db: Session =
     return habit
 
 #----------------Habit suggestion using OpenAI------------------------------
-client = openai.OpenAI(api_key="API_KEY")
+PERPLEXITY_API_KEY = "API KEY"
+PERPLEXITY_API_URL = "API URL"
 
 @app.post("/ai/habit-suggestions")
 async def habit_suggestions(request: Request):
     data = await request.json()
-    habits = data.get("habits", [])  # List of habit names or dicts
-    
+    habits = data.get("habits", [])
     if not habits:
         raise HTTPException(status_code=400, detail="No habits provided")
-    
-    # Create prompt string based on habits
+
     habit_list_str = ", ".join(habits)
     prompt = (
         f"Given the following existing habits: {habit_list_str}, "
         "suggest 3 fun and quirky new habits that go well with them. "
-        "Present each habit with a catchy name and a short, playful description."
-        "The response should sound friendly and casual, like youre chatting with a buddy. Format it like: Hey, your todays suggestions include  [list of suggested habits and descriptions]. No bold words or formal tone."
+        "Present each habit with a catchy name and a short, playful description. "
+        "The response should sound friendly and casual, like you're chatting with a buddy. "
+        "Format it like: Hey, your today's suggestions include [list of suggested habits and descriptions]. "
+        "No bold words or formal tone."
     )
-       
 
-    try:
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=150,
-            n=1,
-            temperature=0.7,
-        )
-        suggestions = response.choices[0].message.content.strip()
-        return {"suggestions": suggestions}
-    except Exception as e:
-        # Fallback suggestions when API is not available
+    headers = {
+        "Authorization": f"Bearer {PERPLEXITY_API_KEY}",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "model": "sonar",
+        "messages": [{"role": "user", "content": prompt}],
+        "max_tokens": 100,
+    }
+
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.post(PERPLEXITY_API_URL, headers=headers, json=payload)
+        except Exception as e:
+            print(f"❌ Exception while calling Perplexity API: {e}")
+            fallback_suggestions = """Based on your current habits, here are some complementary suggestions:
+1. Morning Stretching - A gentle way to start your day and complement your exercise routine
+2. Journal Writing - Great for reflection and mental clarity alongside meditation
+3. Hydration Tracking - Essential for overall health and wellness
+These suggestions are generated locally when AI services are unavailable."""
+            return {"suggestions": fallback_suggestions}
+
+    if response.status_code == 200:
+        data = response.json()
+        content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+        print(f"✅ Perplexity API responded: {content}")
+        return {"suggestions": content}
+    else:
+        print(f"❌ Perplexity API error {response.status_code}: {response.text}")
         fallback_suggestions = """Based on your current habits, here are some complementary suggestions:
-
-1. **Morning Stretching** - A gentle way to start your day and complement your exercise routine
-2. **Journal Writing** - Great for reflection and mental clarity alongside meditation
-3. **Hydration Tracking** - Essential for overall health and wellness
-
+1. Morning Stretching - A gentle way to start your day and complement your exercise routine
+2. Journal Writing - Great for reflection and mental clarity alongside meditation
+3. Hydration Tracking - Essential for overall health and wellness
 These suggestions are generated locally when AI services are unavailable."""
         return {"suggestions": fallback_suggestions}
-
 
 # ------------------- GOALS ------------------- #
 

@@ -19,7 +19,7 @@ class UserLogin(BaseModel):
 class User(UserBase):
     id: int
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 # --- Habit Schemas ---
@@ -40,7 +40,7 @@ class Habit(HabitBase):
     last_completed_date: Optional[date] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class HabitUpdate(BaseModel):
     name: Optional[str] = None
@@ -66,4 +66,4 @@ class GoalCreate(GoalBase):
 class Goal(GoalBase):
     id: int
     class Config:
-        orm_mode = True
+        from_attributes = True
