@@ -698,12 +698,14 @@ html::before {
     margin-bottom: 1rem;
     transition: all 0.2s;
     background-color: var(--hover-bg);
+    color: #1e293b !important;  
 }
 
 .modal input:focus {
     border-color: var(--primary-purple);
     background-color: #fff;
     box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    color: #1e293b !important;  
 }
 
 .habit-dropdown {
@@ -717,12 +719,14 @@ html::before {
     transition: all 0.2s;
     background-color: var(--hover-bg);
     cursor: pointer;
+    color: #1e293b !important;  
 }
 
 .habit-dropdown:focus {
     border-color: var(--primary-purple);
     background-color: #fff;
     box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    color: #1e293b !important;  
 }
 
 .modal-buttons {

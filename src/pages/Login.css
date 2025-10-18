@@ -93,7 +93,8 @@
   width: 100%;                    
   max-width: 100%;                 
   box-sizing: border-box;          
-  height: 38px;                    
+  height: 38px;   
+  color: #1e293b !important;                 
 }
 
 .input-group input:focus {
@@ -101,7 +102,13 @@
   outline: none;
   background: #fff;
   box-shadow: 0 0 0 4px rgba(102,126,234,0.13);
+  color: #1e293b !important;
 }
+.input-group input::placeholder {
+  color: #a0aec0; 
+  opacity: 1; 
+}
+
 
 .error-text {
   color: #e63946;

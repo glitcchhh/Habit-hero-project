@@ -327,6 +327,7 @@
     background: #f8fafc;
     transition: all 0.2s;
     font-family: inherit;
+    color: #1e293b !important;  
 }
 
 .input-group input:focus,
@@ -335,6 +336,7 @@
     border-color: #667eea;
     background: white;
     box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    color: #1e293b !important;  
 }
 
 /* --- Stats Card --- */

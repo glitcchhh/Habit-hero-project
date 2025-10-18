@@ -80,7 +80,7 @@ function CreateAccount() {
     <div className="signup-page-container">
       <div className="signup-form-box">
         <div className="signup-form-content">
-          <h2 className="signup-form-title">Unlock Your HABIT HERO Journey</h2>
+          <h2 className="signup-form-title">UNLOCK YOUR HABIT HERO JOURNEY</h2>
           <p className="signup-login-link">
             Already have an account? <Link to="/login">Log in</Link>
           </p>
