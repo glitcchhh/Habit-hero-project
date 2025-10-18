@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { useUser } from "../UserContext";
 import "./Signup.css";
-import {Link} from "react-router-dom";
 
 function CreateAccount() {
   const [formData, setFormData] = useState({
@@ -16,6 +16,7 @@ function CreateAccount() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useUser();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -57,6 +58,14 @@ function CreateAccount() {
       // Signup successful
       const data = await response.json();
       console.log("User created:", data);
+      
+      // Automatically log in the user after signup
+      login({
+        id: data.id,
+        name: data.name,
+        email: data.email
+      });
+      
       setLoading(false);
       navigate("/home"); // Redirect to home page
 

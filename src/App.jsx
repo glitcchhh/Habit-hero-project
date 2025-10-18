@@ -1,24 +1,63 @@
-import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import CreateAccount from "./pages/Signup";
-import HomePage from "./pages/Home";
-import LoginPage from "./pages/Login";
-import AllHabitsPage from "./pages/Allhabits";
-import StatsPage from "./pages/StatsPage";
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { UserProvider } from './UserContext';
+import ProtectedRoute from './ProtectedRoute';
+import LoginPage from './pages/Login';
+import CreateAccount from './pages/Signup';
+import HomePage from './pages/Home';
+import StatsPage from './pages/StatsPage';
+import AllHabitsPage from './pages/Allhabits';
 
+
+// import SettingsPage from './Settings';
+// import AllHabitsPage from './AllHabits';
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<CreateAccount />} />
-        <Route path="/home" element={<HomePage />} />
-        <Route path="/login" element={<LoginPage/>}/>
-        <Route path="/signup" element={<CreateAccount/>}/>
-        <Route path="/allhabits" element={<AllHabitsPage/>}/>
-        <Route path="/stats" element={<StatsPage/>}/>
-      </Routes>
-    </BrowserRouter>
+    <UserProvider>
+      <Router>
+        <Routes>
+          {/* Public routes */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<CreateAccount />} />
+          
+          {/* Protected routes */}
+          <Route 
+            path="/home" 
+            element={
+              <ProtectedRoute>
+                <HomePage />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* Add other protected routes similarly */}
+           
+          <Route 
+            path="/stats" 
+            element={
+              <ProtectedRoute>
+                <StatsPage />
+              </ProtectedRoute>
+            } 
+          />
+      
+          <Route 
+            path="/allhabits" 
+            element={
+              <ProtectedRoute>
+                <AllHabitsPage />
+              </ProtectedRoute>
+            } 
+          />
+          
+          
+          {/* Default redirect */}
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </Router>
+    </UserProvider>
   );
 }
 

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "../UserContext";
 import "./Login.css";
 
 function LoginPage() {
@@ -12,6 +13,7 @@ function LoginPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const navigate = useNavigate();
+  const { login } = useUser();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -40,12 +42,21 @@ function LoginPage() {
       if (response.ok) {
         const data = await response.json();
         console.log("✅ Login successful:", data);
+        
+        // Store user data in context and localStorage
+        login({
+          id: data.user_id,
+          name: data.name,
+          email: formData.email
+        });
+        
         setSuccess(`Welcome back, ${data.name}!`);
         setError("");
-        navigate("/home");
         
-        // Optionally store user info or token in localStorage
-        // localStorage.setItem("user", JSON.stringify(data));
+        // Redirect to home page
+        setTimeout(() => {
+          navigate("/home");
+        }, 500);
       } else {
         const err = await response.json();
         setError(err.detail || "Invalid email or password");
@@ -62,7 +73,7 @@ function LoginPage() {
         <div className="form-content">
           <h2 className="form-title">Log in to your account</h2>
           <p className="login-link">
-            Don’t have an account? <a href="/signup">Create one</a>
+            Don't have an account? <a href="/signup">Create one</a>
           </p>
 
           <form onSubmit={handleSubmit} className="form-fields">

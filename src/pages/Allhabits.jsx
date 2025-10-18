@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useUser } from '../UserContext';
 import './Home.css';
 
 // --- Icon Components ---
@@ -75,15 +76,24 @@ const HabitCard = ({ habit, toggleHabit }) => (
 const AllHabitsPage = () => {
   const [habits, setHabits] = useState([]);
   const navigate = useNavigate();
-  const USER_ID = 1; // Replace with actual logged-in user ID
+  const { user } = useUser();
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
+    }
+  }, [user, navigate]);
 
   // --- Fetch habits from backend ---
   useEffect(() => {
-    axios
-      .get(`http://localhost:8000/habits/${USER_ID}`)
-      .then((res) => setHabits(res.data))
-      .catch((err) => console.error('Error fetching habits:', err));
-  }, []);
+    if (user) {
+      axios
+        .get(`http://localhost:8000/habits/${user.id}`)
+        .then((res) => setHabits(res.data))
+        .catch((err) => console.error('Error fetching habits:', err));
+    }
+  }, [user]);
 
   // --- Toggle habit completion ---
   const toggleHabit = (id) => {
@@ -121,6 +131,10 @@ const AllHabitsPage = () => {
     if (indexB === -1) return -1;
     return indexA - indexB;
   });
+
+  if (!user) {
+    return null; // or a loading spinner
+  }
 
   return (
     <div className="app-container">

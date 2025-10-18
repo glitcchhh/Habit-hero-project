@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useUser } from '../UserContext';
 import './Home.css';
 import { Home, Activity, Settings, Plus, Calendar, CheckSquare, Square, EllipsisVertical } from "../components/Icons";
 
@@ -81,18 +82,32 @@ const HomePage = () => {
   const [newHabit, setNewHabit] = useState("");
   const [habitType, setHabitType] = useState("Work");
   const [selectedDays, setSelectedDays] = useState([]);
+  const [streakStats, setStreakStats] = useState({
+    currentStreak: 0,
+    longestStreak: 0,
+    totalCompleted: 0
+  });
+  
   const navigate = useNavigate();
-
-  const USER_ID = 1; // Hardcoded for now, replace with login user id
+  const { user, logout } = useUser();
 
   const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
+    }
+  }, [user, navigate]);
+
   // --- Fetch habits from backend ---
   useEffect(() => {
-    axios.get(`http://localhost:8000/habits/${USER_ID}`)
-      .then(res => setHabits(res.data))
-      .catch(err => console.error('Error fetching habits:', err));
-  }, []);
+    if (user) {
+      axios.get(`http://localhost:8000/habits/${user.id}`)
+        .then(res => setHabits(res.data))
+        .catch(err => console.error('Error fetching habits:', err));
+    }
+  }, [user]);
 
   // --- Toggle habit completion ---
   const toggleHabit = (id) => {
@@ -114,14 +129,14 @@ const HomePage = () => {
 
   // --- Add new habit ---
   const addHabit = () => {
-    if (!newHabit.trim()) return;
+    if (!newHabit.trim() || !user) return;
 
     axios.post("http://localhost:8000/habits/", {
       name: newHabit.trim(),
       completed: false,
       category: habitType,
-      user_id: USER_ID,
-      scheduledDays: selectedDays // include scheduled days in request
+      user_id: user.id, // Use logged-in user's ID
+      scheduled_days: selectedDays
     })
       .then(res => {
         setHabits(prev => [...prev, res.data]);
@@ -141,28 +156,47 @@ const HomePage = () => {
   }, [habits]);
 
   // --- Fetch streak statistics ---
-  const [streakStats, setStreakStats] = useState({
-    currentStreak: 0,
-    longestStreak: 0,
-    totalCompleted: 0
-  });
-
   useEffect(() => {
-    axios.get(`http://localhost:8000/habits/stats/${USER_ID}`)
-      .then(res => setStreakStats({
-        currentStreak: res.data.current_streak,
-        longestStreak: res.data.longest_streak,
-        totalCompleted: res.data.total_completed
-      }))
-      .catch(err => console.error('Error fetching streak stats:', err));
-  }, [habits]);
+    if (user) {
+      axios.get(`http://localhost:8000/habits/stats/${user.id}`)
+        .then(res => setStreakStats({
+          currentStreak: res.data.current_streak,
+          longestStreak: res.data.longest_streak,
+          totalCompleted: res.data.total_completed
+        }))
+        .catch(err => console.error('Error fetching streak stats:', err));
+    }
+  }, [habits, user]);
+
+  // Handle logout
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
+  if (!user) {
+    return null; // or a loading spinner
+  }
 
   return (
     <div className="app-container">
       <div className="main-card">
         <header className="header">
-        <p>{new Date().toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}</p>
-          <h1>Hello, <span>User!</span></h1>
+          <div>
+            <p>{new Date().toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}</p>
+            <h1>Hello, <span>{user.name}!</span></h1>
+          </div>
+          <button onClick={handleLogout} style={{
+            padding: '8px 16px',
+            background: '#ff6b35',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            fontSize: '14px'
+          }}>
+            Logout
+          </button>
         </header>
 
         {/* Streak Tracker */}
