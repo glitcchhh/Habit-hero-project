@@ -85,8 +85,8 @@ A modern, full-stack habit tracking application built with React and FastAPI. Tr
   - uvicorn main:app --reload
 
 - Running the Frontend server
-open a new powershell
-npm run dev
+  - open a new powershell and run
+  - npm run dev
 
 
 
