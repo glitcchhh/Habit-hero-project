@@ -42,6 +42,11 @@ class Habit(HabitBase):
     class Config:
         orm_mode = True
 
+class HabitUpdate(BaseModel):
+    name: Optional[str] = None
+    category: Optional[str] = None
+    scheduled_days: Optional[List[str]] = None
+
 
 # --- Streak Stats Schema ---
 class StreakStats(BaseModel):

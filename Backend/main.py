@@ -257,6 +257,42 @@ def get_user_streak_stats(user_id: int, db: Session = Depends(get_db)):
     )
 
 
+@app.delete("/habits/{habit_id}")
+def delete_habit(habit_id: int, db: Session = Depends(get_db)):
+    habit = db.query(models.Habit).filter(models.Habit.id == habit_id).first()
+    if not habit:
+        raise HTTPException(status_code=404, detail="Habit not found")
+    
+    # Delete all related habit completions first
+    db.query(models.HabitCompletion).filter(
+        models.HabitCompletion.habit_id == habit_id
+    ).delete()
+    
+    # Delete the habit
+    db.delete(habit)
+    db.commit()
+    return {"message": "Habit deleted successfully"}
+
+
+@app.put("/habits/{habit_id}/update", response_model=schemas.Habit)
+def update_habit(habit_id: int, habit_update: schemas.HabitUpdate, db: Session = Depends(get_db)):
+    habit = db.query(models.Habit).filter(models.Habit.id == habit_id).first()
+    if not habit:
+        raise HTTPException(status_code=404, detail="Habit not found")
+    
+    # Update habit fields
+    if habit_update.name is not None:
+        habit.name = habit_update.name
+    if habit_update.category is not None:
+        habit.category = habit_update.category
+    if habit_update.scheduled_days is not None:
+        habit.scheduled_days = habit_update.scheduled_days
+    
+    db.commit()
+    db.refresh(habit)
+    return habit
+
+
 # ------------------- GOALS ------------------- #
 
 @app.post("/goals/", response_model=schemas.Goal)
